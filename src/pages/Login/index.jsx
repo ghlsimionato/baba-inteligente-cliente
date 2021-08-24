@@ -9,12 +9,17 @@ const inputOnChangeBuilder = inputSetter => (e) => {
 
     if (value) inputSetter(value);
 };
-// ["access_token", "3gn11Ft0Me8lkqqW2/5uFQ="]
 
 const requestUrl = 'http://localhost:8080/authenticate';
 
 const USERNAME_INPUT_ID = 'username-input';
 const PASSWORD_INPUT_ID = 'password-input';
+
+const buildWebSocketHeaders = token => ({
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/json',
+    'My-Custom-Header': 'fuckyou',
+});
 
 const Login = () => {
     const [userNameInputValue, setUserNameInputValue] = useState('');
@@ -62,7 +67,7 @@ const Login = () => {
             <button onClick={onLoginClick}>Log In Now</button>
 
             {token && <button onClick={requestCrying}>Connect</button>}
-            {clicked && <SockJsClient url="http://localhost:8080/crying/websocket" onConnect={onConnect} onMessage={onMessage} topics={['/CRYING_TOPIC/CRYING_GROUP']} />}
+            {clicked && <SockJsClient url="http://localhost:8080/ws-crying" debug headers={buildWebSocketHeaders(token)} onConnect={onConnect} onMessage={onMessage} topics={['/CRYING_TOPIC/CRYING_GROUP']} />}
         </div>
     );
 };
