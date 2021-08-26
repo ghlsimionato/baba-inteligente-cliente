@@ -13,7 +13,7 @@ const inputOnChangeBuilder = inputSetter => (e) => {
 const USERNAME_INPUT_ID = 'username-input';
 const PASSWORD_INPUT_ID = 'password-input';
 
-const Login = (props) => {
+const Login = () => {
     const { setToken, setUsername } = useContext(SessionContext);
 
     const [userNameInputValue, setUserNameInputValue] = useState('');

@@ -5,8 +5,6 @@ import { SessionContext } from '../../index.jsx';
 import Login from '../../pages/Login';
 import Dashboard from '../../pages/Dashboard';
 
-
-
 const Container = () => {
     const [token, setToken] = useState(null);
     const [username, setUsername] = useState(null);
