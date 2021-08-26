@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 
-import SockJsClient from 'react-stomp';
+import { loginUser } from '../../api/login';
 
 
 const inputOnChangeBuilder = inputSetter => (e) => {
@@ -10,64 +9,48 @@ const inputOnChangeBuilder = inputSetter => (e) => {
     if (value) inputSetter(value);
 };
 
-const requestUrl = 'http://localhost:8080/authenticate';
-
 const USERNAME_INPUT_ID = 'username-input';
 const PASSWORD_INPUT_ID = 'password-input';
 
-const buildWebSocketHeaders = token => ({
-    'Authorization': `Bearer ${token}`,
-    'Accept': 'application/json',
-    'My-Custom-Header': 'fuckyou',
-});
+const Login = (props) => {
+    const { setToken } = props;
 
-const Login = () => {
     const [userNameInputValue, setUserNameInputValue] = useState('');
     const [passwordInputValue, setPasswordInputValue] = useState('');
-    const [token, setToken] = useState(null);
-    const [clicked, setClicked] = useState(false);
+    const [requestedLogin, setRequestedLogin] = useState(false);
 
-    const onLoginClick = () => {
-        const requestBody = {
-            username: userNameInputValue,
-            password: passwordInputValue,
-        };
+    useEffect(() => {
+        const requestLogin = async () => {
+            if (requestedLogin) {
+                const requestBody = {
+                    username: userNameInputValue,
+                    password: passwordInputValue,
+                };
 
-        axios.post(requestUrl, requestBody)
-            .then((res) => {
-                const { data } = res;
+                const { data } = await loginUser(requestBody);
                 setToken(data);
-            })
-            .catch(err => console.log(err));
-    };
+            }
+        };
+        
+        requestLogin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [requestedLogin]);
 
-    const onMessage = () => {
-        console.log('message received');
-    };
-
-    const onConnect = () => {
-        console.log('Connection established');
-    };
-
-    const requestCrying = () => {
-        setClicked(true);
-    };
+    const onLoginClick = () => setRequestedLogin(true);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <h1>Log in</h1>
             <div style={{ display: 'flex', flexDirection: 'row' }}>
                 <label htmlFor={USERNAME_INPUT_ID}>Username</label>
-                <input id={USERNAME_INPUT_ID} onChange={inputOnChangeBuilder(setUserNameInputValue)} value={userNameInputValue} />
+                <input id={USERNAME_INPUT_ID} onChange={inputOnChangeBuilder(setUserNameInputValue)} value={userNameInputValue} placeholder="Username" />
             </div>
             <div style={{ display: 'flex', flexDirection: 'row' }}>
                 <label htmlFor={PASSWORD_INPUT_ID}>Password</label>
-                <input id={PASSWORD_INPUT_ID} onChange={inputOnChangeBuilder(setPasswordInputValue)} value={passwordInputValue} type="password" />
+                <input id={PASSWORD_INPUT_ID} onChange={inputOnChangeBuilder(setPasswordInputValue)} value={passwordInputValue} type="password" placeholder="Password" />
             </div>
 
             <button onClick={onLoginClick}>Log In Now</button>
-
-            {token && <button onClick={requestCrying}>Connect</button>}
-            {clicked && <SockJsClient url="http://localhost:8080/ws-crying" debug headers={buildWebSocketHeaders(token)} onConnect={onConnect} onMessage={onMessage} topics={['/CRYING_TOPIC/CRYING_GROUP']} />}
         </div>
     );
 };
