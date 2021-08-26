@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 
-import { TokenContext } from '../../index.jsx';
+import { SessionContext } from '../../index.jsx';
 
 import { loginUser } from '../../api/login';
 
@@ -14,8 +14,7 @@ const USERNAME_INPUT_ID = 'username-input';
 const PASSWORD_INPUT_ID = 'password-input';
 
 const Login = (props) => {
-    // const { setToken } = props;
-    const { setToken } = useContext(TokenContext);
+    const { setToken, setUsername } = useContext(SessionContext);
 
     const [userNameInputValue, setUserNameInputValue] = useState('');
     const [passwordInputValue, setPasswordInputValue] = useState('');
@@ -30,7 +29,9 @@ const Login = (props) => {
                 };
 
                 const { data } = await loginUser(requestBody);
+                setUsername(userNameInputValue); // update userName for whole application
                 setToken(data);
+                console.log('input value', userNameInputValue);
             }
         };
 

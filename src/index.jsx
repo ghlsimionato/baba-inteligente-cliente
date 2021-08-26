@@ -4,9 +4,11 @@ import Container from './components/Container';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-export const TokenContext = React.createContext({
+export const SessionContext = React.createContext({
     token: null,
     setToken: () => {},
+    username: null,
+    setUsername: () => {},
 });
 
-ReactDOM.render(<TokenContext.Provider><Container /></TokenContext.Provider>, document.getElementById('root'));
+ReactDOM.render(<Container />, document.getElementById('root'));

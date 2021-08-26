@@ -3,7 +3,9 @@ import SockJsClient from 'react-stomp';
 
 import { getBabyData } from '../../api/baby';
 import { SessionContext } from '../../index.jsx';
+import BabyData from './components/BabyData';
 
+import AlertModal from './components/AlertModal';
 import RegisterBaby from './components/RegisterBaby';
 import SoundLevelDisplay from './components/SoundLevelDisplay';
 import TemperatureDisplay from './components/TemperatureDisplay';
@@ -18,7 +20,8 @@ const CRYING_TYPE = 'crying';
 const TEMPERATURE_TYPE = 'temperature';
 
 const Dashboard = () => {
-    const { token } = useContext(SessionContext);
+    const { token, username } = useContext(SessionContext);
+    console.log('dashboard username', username)
     const [babyData, setBabyData] = useState(null);
 
     const [showAlert, setShowAlert] = useState(false);
@@ -31,17 +34,21 @@ const Dashboard = () => {
 
     useEffect(() => {
         const fetchBabyData = async () => {
-            const { data } = await getBabyData(token);
-
-            if (!data) {
-                console.log('no baby found');
-            } else {
+            try {
+                console.log('USERNAME', username);
+                const { data } = await getBabyData({ token, username });
+                
                 setBabyData(data);
+            } catch (error) {
+                if (error.status === 404) {
+                    console.log('no baby found');
+                    setBabyData(null);
+                }
             }
         };
 
         fetchBabyData();
-    }, [token]);
+    }, [token, username]);
 
     useEffect(() => {
         if (temperatureLevel > 37) {
@@ -76,11 +83,13 @@ const Dashboard = () => {
                         onMessage={onMessage}
                         topics={[TEMPERATURE_TOPIC_PATH, CRYING_TOPIC_PATH]}
                     />
+                    <AlertModal />
+                    <BabyData {...babyData} />
                     {temperatureLevel && <TemperatureDisplay temperatureLevel={temperatureLevel} />}
                     {soundLevel && <SoundLevelDisplay  soundLevel={soundLevel} />}
                 </>
                 ) : (
-                    <RegisterBaby />
+                    <RegisterBaby setBabyData={setBabyData} />
                 )
             }
         </div>
