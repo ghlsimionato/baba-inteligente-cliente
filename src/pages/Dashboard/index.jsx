@@ -2,10 +2,13 @@ import React, { useEffect, useState, useContext } from 'react';
 import SockJsClient from 'react-stomp';
 
 import { getBabyData } from '../../api/baby';
-import { TokenContext } from '../../index.jsx';
+import { SessionContext } from '../../index.jsx';
+
+import RegisterBaby from './components/RegisterBaby';
 import SoundLevelDisplay from './components/SoundLevelDisplay';
 import TemperatureDisplay from './components/TemperatureDisplay';
 
+// constants
 const webSocketUrl = 'http://localhost:8080/websocket';
 
 const TEMPERATURE_TOPIC_PATH = '/TEMPERATURE_TOPIC/TEMPERATURE_GROUP';
@@ -15,7 +18,7 @@ const CRYING_TYPE = 'crying';
 const TEMPERATURE_TYPE = 'temperature';
 
 const Dashboard = () => {
-    const { token } = useContext(TokenContext);
+    const { token } = useContext(SessionContext);
     const [babyData, setBabyData] = useState(null);
 
     const [showAlert, setShowAlert] = useState(false);
@@ -77,7 +80,7 @@ const Dashboard = () => {
                     {soundLevel && <SoundLevelDisplay  soundLevel={soundLevel} />}
                 </>
                 ) : (
-                    <h1>No baby found</h1>
+                    <RegisterBaby />
                 )
             }
         </div>
