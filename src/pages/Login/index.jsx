@@ -31,7 +31,6 @@ const Login = (props) => {
                 const { data } = await loginUser(requestBody);
                 setUsername(userNameInputValue); // update userName for whole application
                 setToken(data);
-                console.log('input value', userNameInputValue);
             }
         };
 

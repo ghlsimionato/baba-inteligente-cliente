@@ -3,9 +3,11 @@ import SockJsClient from 'react-stomp';
 
 import { getBabyData } from '../../api/baby';
 import { SessionContext } from '../../index.jsx';
-import BabyData from './components/BabyData';
+
+import { HIGH_TEMPERATURE_ALERT, LOW_TEMPERATURE_ALERT, CRYING_ALERT} from '../../utils/constants';
 
 import AlertModal from './components/AlertModal';
+import BabyData from './components/BabyData';
 import RegisterBaby from './components/RegisterBaby';
 import SoundLevelDisplay from './components/SoundLevelDisplay';
 import TemperatureDisplay from './components/TemperatureDisplay';
@@ -16,18 +18,21 @@ const webSocketUrl = 'http://localhost:8080/websocket';
 const TEMPERATURE_TOPIC_PATH = '/TEMPERATURE_TOPIC/TEMPERATURE_GROUP';
 const CRYING_TOPIC_PATH = '/CRYING_TOPIC/CRYING_GROUP';
 
-const CRYING_TYPE = 'crying';
-const TEMPERATURE_TYPE = 'temperature';
+const CRYING_MESSAGE_TYPE = 'crying';
+const TEMPERATURE_MESSAGE_TYPE = 'temperature';
 
 const Dashboard = () => {
     const { token, username } = useContext(SessionContext);
-    console.log('dashboard username', username)
     const [babyData, setBabyData] = useState(null);
 
     const [showAlert, setShowAlert] = useState(false);
+    const [alertType, setAlertType] = useState(null);
 
     const handleCloseAlert = () => setShowAlert(false);
-    const handleShowAlert = () => setShowAlert(true);
+
+    const handleShowAlert = () => {
+        setShowAlert(true)
+    };
 
     const [temperatureLevel, setTemperatureLevel] = useState(null);
     const [soundLevel, setSoundLevel] = useState(null);
@@ -35,7 +40,6 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchBabyData = async () => {
             try {
-                console.log('USERNAME', username);
                 const { data } = await getBabyData({ token, username });
                 
                 setBabyData(data);
@@ -51,17 +55,28 @@ const Dashboard = () => {
     }, [token, username]);
 
     useEffect(() => {
-        if (temperatureLevel > 37) {
+        if (temperatureLevel && temperatureLevel > 37) {
             handleShowAlert();
+            setAlertType(HIGH_TEMPERATURE_ALERT)
+        }
+
+        if (temperatureLevel && temperatureLevel < 35) {
+            handleShowAlert();
+            setAlertType(LOW_TEMPERATURE_ALERT);
+        }
+
+        if (soundLevel && soundLevel > 90) {
+            handleShowAlert();
+            setAlertType(CRYING_ALERT);
         }
     }, [temperatureLevel, soundLevel]);
 
     const onMessage = (message) => {
         switch(message.type) {
-            case CRYING_TYPE:
+            case CRYING_MESSAGE_TYPE:
                 setSoundLevel(message.value);
                 break;
-            case TEMPERATURE_TYPE:
+            case TEMPERATURE_MESSAGE_TYPE:
                 setTemperatureLevel(message.value);
                 break;
             default:
@@ -83,7 +98,7 @@ const Dashboard = () => {
                         onMessage={onMessage}
                         topics={[TEMPERATURE_TOPIC_PATH, CRYING_TOPIC_PATH]}
                     />
-                    <AlertModal />
+                    <AlertModal alertType={alertType} show={showAlert} handleClose={handleCloseAlert} />
                     <BabyData {...babyData} />
                     {temperatureLevel && <TemperatureDisplay temperatureLevel={temperatureLevel} />}
                     {soundLevel && <SoundLevelDisplay  soundLevel={soundLevel} />}

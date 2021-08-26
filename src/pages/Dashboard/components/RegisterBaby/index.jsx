@@ -3,16 +3,8 @@ import React, { useEffect, useState, useContext } from 'react';
 import { SessionContext } from '../../../../index';
 
 import { registerBaby } from '../../../../api/baby';
+import { ALERGIES_MAP } from '../../../../utils/constants';
 
-const MEDICINE = 'Medicine';
-const FOOD = 'Food';
-const OTHER = 'Other';
-
-const ALERGIES_MAP = {
-    1: MEDICINE,
-    2: FOOD,
-    3: OTHER,    
-};
 
 const dropdownOnChangeBuilder = (stateSetter) => event => {
     const { value } = event.target;
@@ -53,9 +45,7 @@ const RegisterBaby = ({ setBabyData }) => {
                 };
 
                 try {
-                    console.log('Request body = ', requestBody);
                     const { data } = await registerBaby({ token, username }, requestBody);
-                    console.log('DATA = ', data);
                     setBabyData(data);
                 } catch (error) {
                     console.log(error)
@@ -64,6 +54,7 @@ const RegisterBaby = ({ setBabyData }) => {
         };
 
         saveBaby();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [submitted]);
 
     const onClick = () => {
