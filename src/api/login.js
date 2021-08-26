@@ -1,8 +1,10 @@
 import axios from 'axios';
 
-const requestUrl = 'http://localhost:8080/authenticate';
+const loginUser = async (requestBody) => {
+    const endpointUrl = 'http://localhost:8080/authenticate';
 
-const loginUser = async requestBody => axios.post(requestUrl, requestBody);
+    return axios.post(endpointUrl, requestBody);
+};
 
 export {
     loginUser,
